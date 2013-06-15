@@ -56,20 +56,16 @@ def get_cell(i,j):
        Dead cells with 3 live neighbors comes to life.
     """
     alive = CELLS[i][j]
-    neighbors = 0
-    neighbor_left = [x for x in [i-1, i+1] if x >= 0]
-    neighbor_right = [x for x in [j-1, j+1] if x >= 0]
+    neighbors = -1 # Each cell is counted as its own neighbor.
+    neighbor_left = [x for x in [i-1, i+1, i] if x >= 0]
+    neighbor_right = [x for x in [j-1, j+1, j] if x >= 0]
     #print "\nCell (%s,%s)" % (i,j)
     for n in neighbor_left:
-        try:
-            neighbors += CELLS[n][j]
+        for p in neighbor_right:
+            try:
+                neighbors += CELLS[n][p]
             #print "(%s,%s): %s" % (n,j,CELLS[n][j])
-        except IndexError: pass
-    for n in neighbor_right:
-        try:
-            neighbors += CELLS[i][n]
-            #print "(%s,%s): %s" % (i,n,CELLS[i][n])
-        except IndexError: pass
+            except IndexError: pass
     #print neighbors
     if (alive) and ((neighbors == 2) or (neighbors == 3)):
         return 1
