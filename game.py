@@ -1,47 +1,58 @@
 #!/usr/bin/env python
 
+from copy import deepcopy
+
 ROWS = 3
 ROW_WIDTH = 3
 
-CELLS = [[1,1,0],
-         [1,0,0],
-         [0,0,0]]
+CELLS = [[1,1,1],
+         [1,0,1],
+         [0,1,1]]
 
-NEW_CELLS = CELLS
-
-live_to_next = False
+NEW_CELLS = deepcopy(CELLS)
 
 def run(gen=5):
     for i in range(0, gen):
         _run(gen)
 
 def _run(gen):
-    global CELLS
+    global CELLS, NEW_CELLS
     for row in CELLS:
         print row
     for i in range(0, ROWS):
         for j in range(0, ROW_WIDTH):
             NEW_CELLS[i][j] = get_cell(i,j)
-    CELLS = NEW_CELLS
+    CELLS = deepcopy(NEW_CELLS)
     print
 
 def get_cell(i,j):
-    return lt_two_neighbors(i,j)
-
-def lt_two_neighbors(i,j):
-    """Any live cell with less than 2 neighbors dies."""
+    """Live cells:
+        * < 2 live neighbors dies.
+        * 2-3 live neighbors lives.
+        * > 3 live nieghbors dies.
+       Dead cells with 3 live neighbors comes to life.
+    """
+    alive = CELLS[i][j]
     neighbors = 0
-    neighbor_left = [i+1, i-1]
-    neighbor_right = [j+1, j-1]
+    neighbor_left = [x for x in [i-1, i+1] if x >= 0]
+    neighbor_right = [x for x in [j-1, j+1] if x >= 0]
+    #print "\nCell (%s,%s)" % (i,j)
     for n in neighbor_left:
         try:
             neighbors += CELLS[n][j]
+            #print "(%s,%s): %s" % (n,j,CELLS[n][j])
         except IndexError: pass
     for n in neighbor_right:
         try:
             neighbors += CELLS[i][n]
+            #print "(%s,%s): %s" % (i,n,CELLS[i][n])
         except IndexError: pass
-    if neighbors >= 2:
+    #print neighbors
+    if (alive) and ((neighbors == 2) or (neighbors == 3)):
+        return 1
+    if (alive) and (neighbors > 3):
+        return 0
+    if (not alive) and (neighbors == 3):
         return 1
     return 0
 
